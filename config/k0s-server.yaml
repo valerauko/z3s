@@ -1,0 +1,43 @@
+apiVersion: k0s.k0sproject.io/v1beta1
+kind: ClusterConfig
+metadata:
+  name: k0s
+
+spec:
+  api:
+    # Bind to the node's private IP — change to match your server's IP
+    address: "REPLACE_WITH_SERVER_IP"
+    sans:
+      - "REPLACE_WITH_SERVER_IP"
+      - "REPLACE_WITH_SERVER_IPV6"  # remove this line if node has no IPv6
+
+  network:
+    provider: custom  # We manage CNI ourselves (Flannel)
+    podCIDR: 10.244.0.0/16,fd00:10:244::/56
+    serviceCIDR: 10.96.0.0/12,fd00:10:96::/112
+    kubeProxy:
+      mode: iptables
+
+  workerProfiles:
+    - name: default
+      values:
+        containerRuntimeEndpoint: unix:///var/run/crio/crio.sock
+        # Reduce kubelet memory pressure
+        maxPods: 50
+        kubeAPIQPS: 5
+        kubeAPIBurst: 10
+        serializeImagePulls: true
+        evictionHard:
+          memory.available: "100Mi"
+        systemReserved:
+          memory: "200Mi"
+
+  # Disable components we don't want
+  extensions:
+    helm:
+      repositories: []
+      charts: []
+
+  images:
+    # Pin to a specific version in production
+    default_pull_policy: IfNotPresent
