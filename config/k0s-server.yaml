@@ -13,8 +13,12 @@ spec:
 
   network:
     provider: custom  # We manage CNI ourselves (Flannel)
-    podCIDR: 10.244.0.0/16,fd00:10:244::/56
-    serviceCIDR: 10.96.0.0/12,fd00:10:96::/112
+    podCIDR: 10.244.0.0/16
+    serviceCIDR: 10.96.0.0/12
+    dualStack:
+      enabled: true
+      IPv6podCIDR: "fd00:cafe:42::/56"
+      IPv6serviceCIDR: "fd00:cafe:43::/112"
     kubeProxy:
       mode: iptables
 
